@@ -8,23 +8,35 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet" href="/style.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.1.4/Chart.min.js"></script>
     <script src="https://code.jquery.com/jquery-2.2.1.min.js"
             integrity="sha256-gvQgAFzTH6trSrAWoH1iPo9Xc96QxSZ3feW6kem+O00="
             crossorigin="anonymous"></script>
     <script>
         var retStr = "";
-          
+        var chartLabels = [];
+        var chartData = [];
+             
         function refreshOpt(pollname, newOpt) {
+          /*
           console.log("refreshing page...");
           retStr = "";
           createOptionsHtml({"name": pollname, "option":newOpt, "votes":1});
           $("#optionsDiv").append(retStr);
+          */
           
+          refreshPage();
           //$.get('/getAllOptions?optname=' + encodeURI('<%= pollname %>') , dataReady);
         }
       
+        function refreshPage() {
+          // resfresh after 1 sec
+          setTimeout(function () { $.get('/getAllOptions?optname=' + encodeURI('<%= pollname %>') , dataReady); }, 1000);          
+        }
+      
         function createOptionsHtml (elm) { 
-          //'<input type="button" onClick="gotoNode(\'' + result.name + '\')" />'
+          chartLabels.push(elm.option);
+          chartData.push(elm.votes);
           retStr += "</br><a href='#' onclick='vote(\"" + elm.option+ "\")'><button>Vote</button></a><span>" + elm.option + "  votes: " + elm.votes + "</span>";
         }
       
@@ -38,18 +50,56 @@
               url: '/vote', 
               type: 'POST', 
               contentType: 'application/json', 
-              data: JSON.stringify({"name": pollname, "options":opt})
-              //,
-              //success: refreshOpt(pollname, newOpt) 
+              data: JSON.stringify({"name": pollname, "options":opt}),
+              success: refreshPage() 
            })
            
         }
 
         function dataReady(data) {
+          chartLabels = [];
+          chartData = [];
           retStr = "<div id='optionsDiv'>";
           console.log("alloptdata=" + JSON.stringify(data));
           data.forEach(createOptionsHtml);
           retStr += "</div></br></br><label>New Option:</label><input id='newopt'></input><button onclick='addOption()'>Add</button>";
+          
+          ///////////////////////
+          var ctx = document.getElementById("myChart").getContext('2d');                  
+          var myChart = new Chart(ctx, {
+            type: 'pie',
+            data: {
+              //labels: ["M", "T", "W", "T", "F", "S", "S"],
+              labels: chartLabels,
+              datasets: [{
+                backgroundColor: [
+                    "#2ecc71",
+                    "#3498db",
+                    "#95a5a6",
+                    "#9b59b6",
+                    "#f1c40f",
+                    "#e74c3c",                  
+                    "#00ffff",
+                    "#ffa500",
+                    "#a52a2a",
+                    "#00008b",
+                    "#008000",
+                    "#4b0082",
+                    "#f0e68c",
+                    "#00ff00",
+                    "#ff00ff",
+                    "#800000",
+                    "#000080",
+                    "#808000",
+                    "#ffc0cb",         
+                    "#34495e"
+                ],
+                //data: [12, 19, 3, 17, 28, 24, 7]
+                data: chartData
+              }]
+            }
+          });
+          //////////////////////
           
           $("#contentDiv").html(retStr);
         }
@@ -71,7 +121,7 @@
       
        $(function() {  
           console.log("Document ready!");
-                  
+                
           console.log("sending get request...");
           $.get('/getAllOptions?optname=' + encodeURI('<%= pollname %>') , dataReady);
         });    
@@ -79,9 +129,12 @@
   </head>
   <body>
     <h1>Poll: <%= pollname %></h1>
-    <div id = "contentDiv">   
-      
+    <div>
+      <div id = "contentDiv" class="fl">         
+      </div>
+      <canvas id="myChart" class="fl">
+      </canvas>       
     </div>
-        
+          
   </body>
 </html>
