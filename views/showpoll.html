@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Voting App</title>
+    <meta name="description" content="A cool thing made with Glitch">
+    <link id="favicon" rel="icon" href="https://glitch.com/edit/favicon-app.ico" type="image/x-icon">
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="/style.css">
+    <script src="https://code.jquery.com/jquery-2.2.1.min.js"
+            integrity="sha256-gvQgAFzTH6trSrAWoH1iPo9Xc96QxSZ3feW6kem+O00="
+            crossorigin="anonymous"></script>
+    <script>
+        var retStr = "";
+          
+        function refreshOpt(pollname, newOpt) {
+          console.log("refreshing page...");
+          retStr = "";
+          createOptionsHtml({"name": pollname, "option":newOpt, "votes":1});
+          $("#optionsDiv").append(retStr);
+          
+          //$.get('/getAllOptions?optname=' + encodeURI('<%= pollname %>') , dataReady);
+        }
+      
+        function createOptionsHtml (elm) { 
+          //'<input type="button" onClick="gotoNode(\'' + result.name + '\')" />'
+          retStr += "</br><a href='#' onclick='vote(\"" + elm.option+ "\")'><button>Vote</button></a><span>" + elm.option + "  votes: " + elm.votes + "</span>";
+        }
+      
+        function vote(opt) {
+           //var newOpt = $('#newopt').val();
+           console.log("vote opt=" + opt);
+         
+           var pollname = '<%= pollname %>' ;
+           // now post to node server
+           $.ajax({
+              url: '/vote', 
+              type: 'POST', 
+              contentType: 'application/json', 
+              data: JSON.stringify({"name": pollname, "options":opt})
+              //,
+              //success: refreshOpt(pollname, newOpt) 
+           })
+           
+        }
+
+        function dataReady(data) {
+          retStr = "<div id='optionsDiv'>";
+          console.log("alloptdata=" + JSON.stringify(data));
+          data.forEach(createOptionsHtml);
+          retStr += "</div></br></br><label>New Option:</label><input id='newopt'></input><button onclick='addOption()'>Add</button>";
+          
+          $("#contentDiv").html(retStr);
+        }
+      
+       function addOption() {
+         var newOpt = $('#newopt').val();
+         console.log("newopt=" + newOpt);
+         
+         var pollname = '<%= pollname %>' ;
+         // now post to node server
+         $.ajax({
+            url: '/saveoption', 
+            type: 'POST', 
+            contentType: 'application/json', 
+            data: JSON.stringify({"name": pollname, "options":newOpt}),
+            success: refreshOpt(pollname, newOpt) 
+         })
+       }      
+      
+       $(function() {  
+          console.log("Document ready!");
+                  
+          console.log("sending get request...");
+          $.get('/getAllOptions?optname=' + encodeURI('<%= pollname %>') , dataReady);
+        });    
+    </script>
+  </head>
+  <body>
+    <h1>Poll: <%= pollname %></h1>
+    <div id = "contentDiv">   
+      
+    </div>
+        
+  </body>
+</html>
