@@ -39,11 +39,33 @@ if (false) {
   });
 }
 
+function procRegister(rb) {
+  db.serialize(function() {
+    var stmt = db.prepare("INSERT INTO users(username, password) VALUES(?,?)");
+    stmt.run(rb.username, rb.password);  
+    stmt.finalize();
+  });
+  
+  showTable("users");
+}
+
+function procLogin(req, res) {
+  //console.log("req.body.username=" + req.body.username); 
+  //console.log("req.body.password=" + req.body.password); 
+  db.each("SELECT * FROM users where username = '" + req.body.username + "' and password = '" + req.body.password + "'", 
+    function(err, row) { 
+      //console.log("row.username=" + row.username); 
+      req.session.authuser = row.username;
+    },
+      function complete(err, found) {
+        res.writeHead(200, {"Content-Type": "application/json"});
+        res.end();
+  });
+  
+}
+
 function newPollRec(name,option,votes,owner) {
   db.serialize(function() {
-
-    //console.log("term=" + term);
-    //console.log("stime=" + stime);
     var stmt = db.prepare("INSERT INTO polls(name, option, votes, owner) VALUES(?,?,?,?)");
     stmt.run(name, option, votes, owner);  
     stmt.finalize();
@@ -126,7 +148,7 @@ app.use(cookieParser());
 app.use(expressSession({secret: 'viush78474hffhs4'}));
 
 app.get("/", function (req, res) {
-  //req.session.authuser = undefined;          // temporarily hardcode no logged in user.
+  //req.session.authuser = undefined;          // temporarily hardcode no logged in user. 
   req.session.authuser = "cpinheir";  // temporarily hardcode a logged in user. 
   console.log("req.session.authuser=" + req.session.authuser);
   
@@ -134,9 +156,16 @@ app.get("/", function (req, res) {
 });
 
 app.get('/newpoll', function(req, res) {
-  res.render('newpoll', {   
-    authuser: req.session.authuser
-  });
+   if (req.session.authuser === undefined) {
+     res.render('listpolls', {   
+       authuser: req.session.authuser
+     });
+   }
+   else {
+      res.render('newpoll', {   
+        authuser: req.session.authuser
+      });
+   }
   
   //res.sendFile(__dirname + '/views/newpoll.html');
 });
@@ -196,9 +225,23 @@ app.post('/vote', function(req,res){
     procVote(req.body);    
 });
 
+app.post('/procregister', function(req,res){
+    console.log(req.body);
+    console.log("username=" + req.body.username);
+    procRegister(req.body);    
+});
+
+app.post('/proclogin', function(req,res){
+    console.log(req.body);
+    console.log("username=" + req.body.username);
+    procLogin(req, res);    
+});
+
 app.get('/mypolls', function(req, res) {
    if (req.session.authuser === undefined) {
-     res.end("Please log in before accessing this page.")
+     res.render('listpolls', {   
+       authuser: req.session.authuser
+     });
    }
    else {
      res.render('mypolls', {   
@@ -209,8 +252,27 @@ app.get('/mypolls', function(req, res) {
    }  
 })
 
+app.get('/register', function(req, res) { 
+  res.render('register', {   
+    authuser: req.session.authuser
+  });
+})
+
+app.get('/login', function(req, res) { 
+  res.render('login', {   
+    authuser: req.session.authuser
+  });
+})
+
+app.get('/logout', function(req, res) {
+  req.session.authuser = undefined;
+  
+  res.render('listpolls', {   
+    authuser: req.session.authuser
+  });
+})
+
 app.get('/test', function(req, res) {
- 
     console.log('GET:....slow url is responding');
     var retObj = { "test" : "cool" };
     //res.write(retObj);

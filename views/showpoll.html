@@ -81,7 +81,8 @@
           retStr = "<div id='optionsDiv'>";
           console.log("alloptdata=" + JSON.stringify(data));
           data.forEach(createOptionsHtml);
-          retStr += "</div></br></br><label>New Option:</label><input id='newopt'></input><button onclick='addOption()'>Add</button>";
+          if (authuser !== "")
+            retStr += "</div></br></br><label>New Option:</label><input id='newopt'></input><button onclick='addOption()'>Add</button>";
           
           ///////////////////////
           var ctx = document.getElementById("myChart").getContext('2d');                  
