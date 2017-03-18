@@ -126,19 +126,28 @@ app.use(cookieParser());
 app.use(expressSession({secret: 'viush78474hffhs4'}));
 
 app.get("/", function (req, res) {
-  req.session.authuser = "";          // temporarily hardcode no logged in user.
-  //req.session.authuser = "cpinheir";  // temporarily hardcode a logged in user.
+  //req.session.authuser = undefined;          // temporarily hardcode no logged in user.
+  req.session.authuser = "cpinheir";  // temporarily hardcode a logged in user. 
+  console.log("req.session.authuser=" + req.session.authuser);
   
-  //res.sendFile(__dirname + '/views/index.html');
   res.redirect('/listpolls');
 });
 
 app.get('/newpoll', function(req, res) {
-  res.sendFile(__dirname + '/views/newpoll.html');
+  res.render('newpoll', {   
+    authuser: req.session.authuser
+  });
+  
+  //res.sendFile(__dirname + '/views/newpoll.html');
 });
 
-app.get('/listpolls', function(req, res) {
-  res.sendFile(__dirname + '/views/listpolls.html');
+app.get('/listpolls', function(req, res) {  
+  console.log("req.session.authuser=" + req.session.authuser);
+  res.render('listpolls', {   
+    authuser: req.session.authuser
+  });
+  
+  //res.sendFile(__dirname + '/views/listpolls.html'); 
 });
 
 app.get('/showpoll', function(req, res) {
@@ -146,7 +155,8 @@ app.get('/showpoll', function(req, res) {
   console.log("req.query=" + JSON.stringify(req.query));
   
   res.render('showpoll', {   
-    pollname: req.query.name
+    pollname: req.query.name,
+    authuser: req.session.authuser
   });
 });
 
@@ -158,14 +168,6 @@ app.get('/getAllOptions', function(req, res) {
   console.log("opts req.parms=" + JSON.stringify(req.params));
   console.log("opts req.query=" + JSON.stringify(req.query));
   getAllOptionRecs(req, res);
-});
-
-
-app.get('/testEJS', function(req, res) {
-  res.render('testEJS', {   
-    title: "EJS example",
-    supplies: [ "fork", "knife", "spoon"]
-  });
 });
 
 app.post('/savepoll', function(req,res){
@@ -195,11 +197,15 @@ app.post('/vote', function(req,res){
 });
 
 app.get('/mypolls', function(req, res) {
-   if (req.session.authuser === "") {
+   if (req.session.authuser === undefined) {
      res.end("Please log in before accessing this page.")
    }
    else {
-     res.sendFile(__dirname + '/views/mypolls.html');
+     res.render('mypolls', {   
+        authuser: req.session.authuser
+     });
+     
+     //res.sendFile(__dirname + '/views/mypolls.html');
    }  
 })
 
@@ -212,6 +218,13 @@ app.get('/test', function(req, res) {
     //res.sendStatus(200);
 
 })
+
+app.get('/testEJS', function(req, res) {
+  res.render('testEJS', {   
+    title: "EJS example",
+    supplies: [ "fork", "knife", "spoon"]
+  });
+});
 
 // listen for requests :)
 app.listen(8080);

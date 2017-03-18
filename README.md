@@ -1,4 +1,4 @@
-EJSEJSWelcome to the Glitch BETA
+//EJSEJSWelcome to the Glitch BETA
 =========================
 
 Click `Show` in the header to see your app live. Updates to your code will instantly deploy and update live.
