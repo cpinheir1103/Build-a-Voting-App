@@ -12,6 +12,24 @@
     <script src="https://code.jquery.com/jquery-2.2.1.min.js"
             integrity="sha256-gvQgAFzTH6trSrAWoH1iPo9Xc96QxSZ3feW6kem+O00="
             crossorigin="anonymous"></script>
+    <script> //TWITTER WIDGETS SCRIPT
+            window.twttr = (function(d, s, id) {
+            var js, fjs = d.getElementsByTagName(s)[0],
+              t = window.twttr || {};
+            if (d.getElementById(id)) return t;
+            js = d.createElement(s);
+            js.id = id;
+            js.src = "https://platform.twitter.com/widgets.js";
+            fjs.parentNode.insertBefore(js, fjs);
+
+            t._e = [];
+            t.ready = function(f) {
+              t._e.push(f);
+            };
+
+            return t;
+          }(document, "script", "twitter-wjs"));
+    </script>
     <script>
         var retStr = "";
         var chartLabels = [];
@@ -129,6 +147,7 @@
   </head>
   <body>
     <h1>Poll: <%= pollname %></h1>
+    <a class="twitter-share-button" href="https://twitter.com/intent/tweet?text=A%20cool%20poll" data-size="large">Tweet</a>
     <div>
       <div id = "contentDiv" class="fl">         
       </div>

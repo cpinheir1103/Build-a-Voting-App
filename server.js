@@ -52,6 +52,16 @@ function procNewPoll(rb) {
     newPollRec(rb.name, optsArr[i], 1, 0);
 }
 
+function procDelPoll(rb) {  
+  db.serialize(function() {
+    var stmt = db.prepare("DELETE FROM polls where name = '" + rb.name + "'");
+    stmt.run();  
+    stmt.finalize();
+  });
+  
+  showTable("polls");
+}
+
 function procVote(rb) {  
   //rb.name  rb.options  
   db.serialize(function() {
@@ -150,6 +160,12 @@ app.post('/savepoll', function(req,res){
     console.log(req.body);
     console.log("name=" + req.body.name);
     procNewPoll(req.body);    
+});
+
+app.post('/deletepoll', function(req,res){
+    console.log(req.body);
+    console.log("name=" + req.body.name);
+    procDelPoll(req.body);    
 });
 
 app.post('/saveoption', function(req,res){

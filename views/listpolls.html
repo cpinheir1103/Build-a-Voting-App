@@ -12,21 +12,36 @@
             integrity="sha256-gvQgAFzTH6trSrAWoH1iPo9Xc96QxSZ3feW6kem+O00="
             crossorigin="anonymous"></script>
     <script>
+        var retStr = "";
+      
+        function deletePoll(name) {
+           // now post to node server
+           $.ajax({
+              url: '/deletepoll', 
+              type: 'POST', 
+              contentType: 'application/json', 
+              data: JSON.stringify({"name": name}),
+              success: setTimeout(function () { $.get('/getAllPolls', dataReady); }, 1000)  // wait a sec then refresh data
+           })
+        }
+      
+        function createPollHtml (elm) {  
+          retStr += "</br>";
+          retStr += "<button onclick='deletePoll(\"" + elm.name+ "\")'>Delete</button>";
+          retStr += "<a href='showpoll?name=" + encodeURI(elm.name) + "'><span>" + elm.name + "</span></a>";
+
+        }
+
+        function dataReady(data) {
+          retStr = "";
+          console.log("allpolldata=" + JSON.stringify(data));
+          data.forEach(createPollHtml);
+          $("#contentDiv").html(retStr);
+        }
+      
         $(function() {  
           console.log("Document ready!");
-          
-          var retStr = "";
-          
-          function createPollHtml (elm) { 
-            retStr += "<a href='showpoll?name=" + encodeURI(elm.name) + "'><p>" + elm.name + "</p></a>";
-          }
-          
-          function dataReady(data) {
-            console.log("allpolldata=" + JSON.stringify(data));
-            data.forEach(createPollHtml);
-            $("#contentDiv").html(retStr);
-          }
-
+                    
           console.log("sending get request...");
           $.get('/getAllPolls', dataReady);
         });  
