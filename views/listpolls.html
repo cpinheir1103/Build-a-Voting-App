@@ -13,7 +13,7 @@
             crossorigin="anonymous"></script>
     <script>
         var retStr = "";
-      
+            
         function deletePoll(name) {
            // now post to node server
            $.ajax({
@@ -41,6 +41,7 @@
       
         $(function() {  
           console.log("Document ready!");
+          myHeader();
                     
           console.log("sending get request...");
           $.get('/getAllPolls', dataReady);
@@ -48,6 +49,8 @@
     </script>
   </head>
   <body>
+    <header class="myhdr">
+    </header>
     <h1>
       All Polls:
     </h1>
@@ -55,5 +58,6 @@
        
     </div>
         
+    <script src="/client.js"></script>
   </body>
 </html>

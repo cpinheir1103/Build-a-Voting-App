@@ -18,10 +18,10 @@ app.set('view engine', 'html');
 ////// DATABASE /////////////////////////////////////////////////////////
 if (false) {
   db.serialize(function() {
-    //db.run("DROP TABLE searchres");
+    //db.run("DROP TABLE polls");
     //console.log("DROPPING TABLE!");
     db.run("CREATE TABLE polls ( ID	INTEGER PRIMARY KEY AUTOINCREMENT UNIQUE, name TEXT, option TEXT, votes INTEGER, owner INTEGER)");
-    db.run("CREATE TABLE users ( ID	INTEGER PRIMARY KEY AUTOINCREMENT UNIQUE, username TEXT, password TEXT)");
+    //db.run("CREATE TABLE users ( ID	INTEGER PRIMARY KEY AUTOINCREMENT UNIQUE, username TEXT, password TEXT)");
    
     console.log("CREATING TABLE!");
   });
@@ -118,7 +118,8 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 
 app.get("/", function (req, res) {
-  res.sendFile(__dirname + '/views/index.html');
+  //res.sendFile(__dirname + '/views/index.html');
+  res.redirect('/listpolls');
 });
 
 app.get('/newpoll', function(req, res) {

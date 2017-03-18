@@ -139,6 +139,7 @@
       
        $(function() {  
           console.log("Document ready!");
+          myHeader();
                 
           console.log("sending get request...");
           $.get('/getAllOptions?optname=' + encodeURI('<%= pollname %>') , dataReady);
@@ -146,6 +147,8 @@
     </script>
   </head>
   <body>
+    <header class="myhdr">
+    </header>
     <h1>Poll: <%= pollname %></h1>
     <a class="twitter-share-button" href="https://twitter.com/intent/tweet?text=A%20cool%20poll" data-size="large">Tweet</a>
     <div>
@@ -154,6 +157,6 @@
       <canvas id="myChart" class="fl">
       </canvas>       
     </div>
-          
+    <script src="/client.js"></script>      
   </body>
 </html>
