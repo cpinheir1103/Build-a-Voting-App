@@ -58,8 +58,17 @@ function procLogin(req, res) {
       req.session.authuser = row.username;
     },
       function complete(err, found) {
-        res.writeHead(200, {"Content-Type": "application/json"});
-        res.end();
+        //res.status(500).send({error: 'you have an error'}); 
+        if (req.session.authuser === undefined) {
+          res.writeHead(500, {"Content-Type": "application/json"});
+          res.end();
+        }
+        else  
+        {
+          //res.writeHead(200, {"Content-Type": "application/json"});
+          res.end('{"success" : "Updated Successfully", "status" : 200}');
+        }
+        
   });
   
 }

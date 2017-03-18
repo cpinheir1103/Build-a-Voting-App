@@ -13,6 +13,18 @@
             crossorigin="anonymous"></script>
     <script>
       var authuser = '<%= authuser %>';
+      
+      function loginError() {        
+        console.log("login error!!!");
+        $(".status").html("<p style='color:red'>Login Unsuccessful</p>");
+      }
+      
+      function loginSuccess() {        
+        console.log("login success!!!");
+        $(".status").html("<p style='color:blue'>Login Successful</p>");
+        window.location.replace("/listpolls");
+      }
+      
       $(document).ready(function() {
         myHeader();         
         
@@ -27,7 +39,11 @@
               type: 'POST', 
               contentType: 'application/json', 
               data: JSON.stringify({"username":username, "password":password}),
-              success: setTimeout(function () { window.location.replace("/listpolls"); }, 1000)
+              success:  function () { setTimeout(function () { loginSuccess(); }, 1000) },
+              error: function (json) { 
+                console.log("json.status=" + json.status);
+                setTimeout(function () { loginError(); }, 1000) 
+              }
           });
           
         });
@@ -49,6 +65,9 @@
         <input type="password" id="password" placeholder="Password"/><br/>  
         <input type="button" id="submit" value="Login"/>
       </form>
+    </div>
+    <div class="status">
+      
     </div>
     <script src="/client.js"></script>    
   </body>
