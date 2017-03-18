@@ -13,6 +13,18 @@
             crossorigin="anonymous"></script>
     <script>
       var authuser = '<%= authuser %>';
+      
+      function registerError() {        
+        console.log("register error!!!");
+        $(".status").html("<p style='color:red'>Register Unsuccessful</p>");
+      }
+      
+      function registerSuccess() {        
+        console.log("register success!!!");
+        $(".status").html("<p style='color:blue'>Register Successful</p>");
+        window.location.replace("/login");
+      }
+      
       $(document).ready(function() {
         myHeader();         
         
@@ -27,7 +39,11 @@
               type: 'POST', 
               contentType: 'application/json', 
               data: JSON.stringify({"username":username, "password":password}),
-              success: setTimeout(function () { window.location.replace("/login"); }, 1000) 
+              success:  function () { setTimeout(function () { registerSuccess(); }, 1000) },
+              error: function (json) { 
+                console.log("json.status=" + json.status);
+                setTimeout(function () { resgisterError(); }, 1000) 
+              }    
           });
           
         });
@@ -49,6 +65,8 @@
         <input type="password" id="password" placeholder="Password"/><br/>  
         <input type="button" id="submit" value="Register"/>
       </form>
+    </div>
+    <div class="status">      
     </div>
     <script src="/client.js"></script>    
   </body>

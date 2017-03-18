@@ -15,6 +15,7 @@
         var retStr = "";
         var authuser = '<%= authuser %>';
             
+      /*
         function deletePoll(name) {
            // now post to node server
            $.ajax({
@@ -25,10 +26,11 @@
               success: setTimeout(function () { $.get('/getAllPolls', dataReady); }, 1000)  // wait a sec then refresh data
            })
         }
+        */
       
         function createPollHtml (elm) {  
           retStr += "</br>";
-          retStr += "<button onclick='deletePoll(\"" + elm.name+ "\")'>Delete</button>";
+          //retStr += "<button onclick='deletePoll(\"" + elm.name+ "\")'>Delete</button>";
           retStr += "<a href='showpoll?name=" + encodeURI(elm.name) + "'><span>" + elm.name + "</span></a>";
 
         }

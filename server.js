@@ -45,7 +45,7 @@ function procRegister(rb) {
     stmt.run(rb.username, rb.password);  
     stmt.finalize();
   });
-  
+   
   showTable("users");
 }
 
@@ -83,10 +83,25 @@ function newPollRec(name,option,votes,owner) {
   showTable("polls");
 }
 
-function procNewPoll(rb) {
-  var optsArr = (rb.options).split(",");  // split options string into an array of options
-  for (var i=0; i<optsArr.length; i++)
-    newPollRec(rb.name, optsArr[i], 1, 0);
+function procNewPoll(req, res) {
+  var rb = req.body;
+  var userID;  
+  //console.log("req.session.authuser=" + req.session.authuser);
+  /// get ID of logged in user first...
+  db.serialize(function(url) {
+    db.each("SELECT * FROM users where username = '" + req.session.authuser + "'", function(err, row) { 
+      userID = row.ID;
+      console.log("userID=" + userID);
+    },
+      function complete(err, found) {
+        // db select has completed, so now add new poll records
+        var optsArr = (rb.options).split(",");  // split options string into an array of options
+        for (var i=0; i<optsArr.length; i++)
+          newPollRec(rb.name, optsArr[i], 1, userID);
+        res.end('{"success" : "Updated Successfully", "status" : 200}');
+    });   
+  });  
+
 }
 
 function procDelPoll(rb) {  
@@ -130,7 +145,19 @@ function getAllPollRecs(req, res) {
         res.write(JSON.stringify(retArr)); 
         res.end();
   });
-  
+}
+
+function getMyPollRecs(req, res) {
+  var retArr = [];
+  db.each("SELECT distinct name FROM (polls INNER JOIN users ON polls.owner=users.ID) where users.username='" + req.session.authuser + "'", function(err, row) { 
+      retArr.push({ "name": row.name });
+      console.log("mypollrec: " + row.ID + ": " + row.name);
+    },
+      function complete(err, found) {
+        res.writeHead(200, {"Content-Type": "application/json"});
+        res.write(JSON.stringify(retArr)); 
+        res.end();
+  });
 }
 
 function getAllOptionRecs(req, res) {
@@ -158,7 +185,7 @@ app.use(expressSession({secret: 'viush78474hffhs4'}));
 
 app.get("/", function (req, res) {
   //req.session.authuser = undefined;          // temporarily hardcode no logged in user. 
-  req.session.authuser = "cpinheir";  // temporarily hardcode a logged in user. 
+  //req.session.authuser = "cpinheir";  // temporarily hardcode a logged in user. 
   console.log("req.session.authuser=" + req.session.authuser);
   
   res.redirect('/listpolls');
@@ -202,6 +229,10 @@ app.get('/getAllPolls', function(req, res) {
   getAllPollRecs(req, res);
 });
 
+app.get('/getMyPolls', function(req, res) {
+  getMyPollRecs(req, res);
+});
+
 app.get('/getAllOptions', function(req, res) {
   console.log("opts req.parms=" + JSON.stringify(req.params));
   console.log("opts req.query=" + JSON.stringify(req.query));
@@ -211,7 +242,7 @@ app.get('/getAllOptions', function(req, res) {
 app.post('/savepoll', function(req,res){
     console.log(req.body);
     console.log("name=" + req.body.name);
-    procNewPoll(req.body);    
+    procNewPoll(req,res);    
 });
 
 app.post('/deletepoll', function(req,res){
@@ -224,7 +255,7 @@ app.post('/saveoption', function(req,res){
     console.log(req.body);
     console.log("name=" + req.body.name);
     console.log("option=" + req.body.options);
-    procNewPoll(req.body);    
+    procNewPoll(req,res);    
 });
 
 app.post('/vote', function(req,res){
@@ -238,6 +269,7 @@ app.post('/procregister', function(req,res){
     console.log(req.body);
     console.log("username=" + req.body.username);
     procRegister(req.body);    
+    res.end('{"success" : "Updated Successfully", "status" : 200}');
 });
 
 app.post('/proclogin', function(req,res){

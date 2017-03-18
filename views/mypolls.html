@@ -12,11 +12,42 @@
             integrity="sha256-gvQgAFzTH6trSrAWoH1iPo9Xc96QxSZ3feW6kem+O00="
             crossorigin="anonymous"></script>
     <script>
-      var authuser = '<%= authuser %>';
-      $(document).ready(function() {
-        myHeader();         
-      });
+        var retStr = "";
+        var authuser = '<%= authuser %>';
+            
+        function deletePoll(name) {
+           // now post to node server
+           $.ajax({
+              url: '/deletepoll', 
+              type: 'POST', 
+              contentType: 'application/json', 
+              data: JSON.stringify({"name": name}),
+              success: setTimeout(function () { $.get('/getMyPolls', dataReady); }, 1000)  // wait a sec then refresh data
+           })
+        }
       
+        function createPollHtml (elm) {  
+          retStr += "</br>";
+          retStr += "<button onclick='deletePoll(\"" + elm.name+ "\")'>Delete</button>";
+          retStr += "<a href='showpoll?name=" + encodeURI(elm.name) + "'><span>" + elm.name + "</span></a>";
+
+        }
+
+        function dataReady(data) {
+          retStr = "";
+          console.log("allpolldata=" + JSON.stringify(data));
+          data.forEach(createPollHtml);
+          $("#contentDiv").html(retStr);
+        }
+      
+        $(function() {  
+          console.log("Document ready!");
+          
+          myHeader();
+                    
+          console.log("sending get request...");
+          $.get('/getMyPolls', dataReady);
+        });  
     </script>
   </head>
   <body>
@@ -25,6 +56,10 @@
     <h1>
       My Polls:
     </h1>
-    <script src="/client.js"></script>    
+    <div id="contentDiv">   
+       
+    </div>
+        
+    <script src="/client.js"></script>
   </body>
 </html>

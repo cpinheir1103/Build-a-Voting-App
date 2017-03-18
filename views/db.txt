@@ -15,4 +15,4 @@ users table
 
 ID   username   password
 1    cpinheir   dfgsdgfsd
-2    johndoe    dfsdfhdhsfg
+2    user2    foobar
