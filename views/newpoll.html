@@ -26,8 +26,9 @@
               url: '/savepoll', 
               type: 'POST', 
               contentType: 'application/json', 
-              data: JSON.stringify({"name":name, "options":options})}
-          )
+              data: JSON.stringify({"name":name, "options":options}),
+              success: setTimeout(function () { window.location.replace("/"); }, 1000) 
+          });
           
         });
           

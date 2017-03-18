@@ -1,6 +1,11 @@
 var express = require('express');
 var bodyParser = require('body-parser');
+var expressSession = require('express-session');
+var cookieParser = require('cookie-parser');
 var app = express();
+
+
+/////// FOR SQLITE3   ////////
 var sqlite3 = require("sqlite3").verbose();
 var fs = require("fs");
 var file = "new.db"; 
@@ -8,12 +13,13 @@ var exists = fs.existsSync(file);
 console.log("exists=" + exists);
 var db = new sqlite3.Database(file);
 console.log("db=" + db);
-
-//////// FOR EJS /////
+//////// FOR EJS //////////
 app.engine('.html', require('ejs').__express);
 app.set('views', __dirname + '/views');
 app.set('view engine', 'html');
-/////////////////////
+//////////////////////////
+
+
 
 ////// DATABASE /////////////////////////////////////////////////////////
 if (false) {
@@ -116,8 +122,13 @@ function getAllOptionRecs(req, res) {
 app.use(express.static('public'));
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
+app.use(cookieParser());
+app.use(expressSession({secret: 'viush78474hffhs4'}));
 
 app.get("/", function (req, res) {
+  req.session.authuser = "";          // temporarily hardcode no logged in user.
+  //req.session.authuser = "cpinheir";  // temporarily hardcode a logged in user.
+  
   //res.sendFile(__dirname + '/views/index.html');
   res.redirect('/listpolls');
 });
@@ -182,6 +193,15 @@ app.post('/vote', function(req,res){
     console.log("option=" + req.body.options);
     procVote(req.body);    
 });
+
+app.get('/mypolls', function(req, res) {
+   if (req.session.authuser === "") {
+     res.end("Please log in before accessing this page.")
+   }
+   else {
+     res.sendFile(__dirname + '/views/mypolls.html');
+   }  
+})
 
 app.get('/test', function(req, res) {
  
